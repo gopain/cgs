@@ -38,8 +38,8 @@ if (commands[0] === 'init') {
     cgs.add(inputSchemaFile);
 } else if (commands[0] === 'gen') {
     const inputDir = commands[1];
-    const outputDir = commands[2];
-    if (!inputDir || !outputDir) {
+    const outputDir = commands[2] || __dirname;
+    if (!inputDir) {
         usage();
     }
     
@@ -52,6 +52,6 @@ function usage() {
     console.log('Usage: cgs <command> <arg>, where command is:');
     console.log(' -- cgs init projectName');
     console.log(' -- cgs add path/to/type.graphql');
-    console.log(' -- cgs gen inputDir outputDir');
+    console.log(' -- cgs gen inputDir [outputDir]');
     process.exit(1);
 }
