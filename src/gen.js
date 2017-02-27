@@ -4,10 +4,6 @@ var fs = require('fs-extra');
 var path = require('path');
 var spawn = require('cross-spawn');
 var chalk = require('chalk');
-var graphql = require('graphql');
-var generateSchema = require('./schema');
-var generateResolvers = require('./resolvers');
-var generateModel = require('./model');
 var utils = require('./utils');
 var add = require('./add');
 
