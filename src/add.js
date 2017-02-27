@@ -9,7 +9,7 @@ var generateModel = require('./model');
 var utils = require('./utils');
 
 module.exports = function (inputSchemaFile, outputDir) {
-
+  outputDir = outputDir ? outputDir : '';
   const inputSchemaStr = fs.readFileSync(inputSchemaFile, 'utf8');
   let inputSchema = {};
   try {
