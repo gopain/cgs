@@ -2,6 +2,7 @@ var fs = require('fs');
 var graphql = require('graphql');
 var recast = require('recast');
 var babylon = require('babylon');
+var path = require('path');
 
 const SCALAR_TYPE_NAMES = ['Int', 'Float', 'String', 'Boolean', 'ID'];
 
@@ -76,6 +77,19 @@ function templateToAst(template, replacements) {
   return recast.parse(source, { parser: babylonParser });
 }
 
+function ensureDirsOrFiles(dir, folders, exec) {
+  folders.forEach(function (item, index) {
+    exec(path.join(dir, item));
+  });
+}
+
+function copyTemplateFileIfNotExist(src, dist, files, exec) {
+  files.forEach(function (item, index) {
+    if (!fs.existsSync(path.join(dist, item)))
+      exec(path.join(src, item), path.join(dist, item));
+  });
+}
+
 exports.readInput = readInput;
 exports.templateToAst = templateToAst;
 exports.lcFirst = lcFirst;
@@ -85,3 +99,5 @@ exports.argumentsToObject = argumentsToObject;
 exports.isScalarField = isScalarField;
 exports.generatePerField = generatePerField;
 exports.SCALAR_TYPE_NAMES = SCALAR_TYPE_NAMES;
+exports.ensureDirsOrFiles = ensureDirsOrFiles;
+exports.copyTemplateFileIfNotExist = copyTemplateFileIfNotExist;
