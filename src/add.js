@@ -11,10 +11,11 @@ var utils = require('./utils');
 module.exports = function (inputSchemaFile, outputDir) {
 
   const inputSchemaStr = fs.readFileSync(inputSchemaFile, 'utf8');
-  const inputSchema = {};
+  let inputSchema = {};
   try {
     inputSchema = graphql.parse(inputSchemaStr);
   } catch (graphqlParseError) {
+    console.log(graphqlParseError);
     throw graphqlParseError;
   }
 
@@ -22,14 +23,15 @@ module.exports = function (inputSchemaFile, outputDir) {
   const TypeName = type.name.value;
   const typeName = utils.lcFirst(TypeName);
 
-  const outputSchemaStr = undefined;
-  const resolversStr = undefined;
-  const modelStr = undefined;
+  let outputSchemaStr = undefined;
+  let resolversStr = undefined;
+  let modelStr = undefined;
   try {
     outputSchemaStr = generateSchema(inputSchema);
     resolversStr = generateResolvers(inputSchema);
     modelStr = generateModel(inputSchema);
   } catch (createOutputError) {
+    console.log(createOutputError);
     throw createOutputError;
   }
   var typeFolder = outputDir ? path.join(outputDir, typeName) : typeName;

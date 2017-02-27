@@ -2,6 +2,7 @@ var fs = require('fs');
 var graphql = require('graphql');
 var recast = require('recast');
 var babylon = require('babylon');
+var path = require('path');
 
 const SCALAR_TYPE_NAMES = ['Int', 'Float', 'String', 'Boolean', 'ID'];
 
@@ -77,7 +78,7 @@ function templateToAst(template, replacements) {
 }
 
 function ensureDirsOrFiles(dir, folders, exec) {
-  forlders.forEach(function (item, index) {
+  folders.forEach(function (item, index) {
     exec(path.join(dir, item));
   });
 }
