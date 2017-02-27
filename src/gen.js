@@ -9,6 +9,7 @@ var generateSchema = require('./schema');
 var generateResolvers = require('./resolvers');
 var generateModel = require('./model');
 var utils = require('./utils');
+var add = require('./add');
 
 module.exports = function (inputDir, outputDir) {
   console.log('gen project from ' + chalk.cyan(inputDir) + ' to ' + chalk.cyan(outputDir));
@@ -21,10 +22,29 @@ function readFilesAndAdd(files, inputDir, outputDir, outputBaseDir) {
   files.forEach(function loop(item, index) {
     var item_path = path.join(inputDir, item);//graphql file or directory
     if (fs.statSync(item_path).isDirectory()) {
+      // console.log(`Cannot support subfolder import.`);
+      // continue;
       readFilesAndAdd(fs.readdirSync(item_path), item_path, path.join(outputDir, item), outputBaseDir);
     } else {
       if (item.indexOf('.graphql') == -1) console.log(`${item} is not a graphql file.`);
-      else add(item_path, outputDir, outputBaseDir);
+      else {
+        utils.ensureDirsOrFiles(outputBaseDir, ['schema', 'resolvers', 'model'], fs.ensureDirSync);
+        var templatePath = path.join(__dirname, '..', 'template');
+        if (!fs.existsSync(templatePath)) {
+          console.error('Could not locate supplied template: ' + chalk.green(templatePath));
+          return;
+        }
+        utils.copyTemplateFileIfNotExist(templatePath, outputBaseDir, ['schema/index.js', 'resolvers/index.js', 'model/index.js'], fs.copySync);
+        try {
+          var pwd = process.cwd();
+          process.chdir(outputBaseDir);//change process current directory to {outputBaseDir}
+          add(item_path, outputDir);
+          process.chdir(pwd);
+        } catch (Error) {
+          console.log(`GraphGL cannot parse ${inputSchemaFile} ,skipped this file.`);
+          console.log(`ERROR:${Error}`);
+        }
+      }
     }
   });
 }
@@ -41,9 +61,7 @@ function add(inputSchemaFile, outputDir, outputBaseDir) {
   const resolversStr = generateResolvers(inputSchema);
   const modelStr = generateModel(inputSchema);
 
-  fs.ensureDirSync(path.join(outputBaseDir, 'schema'));
-  fs.ensureDirSync(path.join(outputBaseDir, 'resolvers'));
-  fs.ensureDirSync(path.join(outputBaseDir, 'model'));
+  ensureDirsOrFiles(outputBaseDir, ['schema', 'resolvers', 'model'], fs.ensureDirSync);
 
   fs.ensureDirSync(path.join(outputBaseDir, 'schema', outputDir));
   fs.ensureDirSync(path.join(outputBaseDir, 'resolvers', outputDir));
@@ -90,4 +108,20 @@ function add(inputSchemaFile, outputDir, outputBaseDir) {
     `models.${TypeName} = ${TypeName};\n`
   );
   console.log(`added model:${typeName}`);
+}
+
+/**
+ * 
+ */
+function ensureDirsOrFiles(dir, folders, exec) {
+  forlders.forEach(function (item, index) {
+    exec(path.join(dir, item));
+  });
+}
+
+function copyTemplateFileIfNotExist(src, dist, files) {
+  files.forEach(function (item, index) {
+    if (!fs.existsSync(path.join(dist, item)))
+      fs.copySync(path.join(src, item), path.join(dist, item));
+  });
 }
