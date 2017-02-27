@@ -12,6 +12,8 @@ var utils = require('./utils');
 var add = require('./add');
 
 module.exports = function (inputDir, outputDir) {
+  inputDir = path.resolve(inputDir);
+  outputDir = path.resolve(outputDir);
   console.log('gen project from ' + chalk.cyan(inputDir) + ' to ' + chalk.cyan(outputDir));
   if (!fs.existsSync(inputDir)) return console.log(`${inputDir} is not exist.`);
   var inputs = fs.readdirSync(inputDir);
@@ -19,7 +21,7 @@ module.exports = function (inputDir, outputDir) {
 }
 
 function readFilesAndAdd(files, inputDir, outputDir, outputBaseDir) {
-  
+
   files.forEach(function loop(item, index) {
     var item_path = path.join(inputDir, item);//graphql file or directory
     if (fs.statSync(item_path).isDirectory()) {
